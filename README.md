@@ -1,0 +1,2 @@
+calibre-search-plugin
+=====================
