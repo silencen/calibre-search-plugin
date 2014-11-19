@@ -56,38 +56,51 @@ class DemoDialog(QDialog):
         
 
     def getPlayersForKeyword(self,keyword):
-        
-        keyword = re.sub("(\'s|\'d|\.|,|\?|!|;|,)","",keyword)
+        #replace unicode apostrophes and quotation marks in keyword
+        keyword = re.sub(ur'([\u2018]|[\u2019])',"'",keyword)
+        keyword = re.sub(ur'([\u201D]|[\u201C])',"\"",keyword)
+        #clean up keyword
+        keyword = re.sub("(\'s|\'d|\.|,|\?|!|;|,|\"|:|\(|\))","",keyword)
         keyword = re.sub("(~ |~|_)"," ",keyword)
+        keyword = keyword.strip("'")
         keyword = keyword.strip()
         #grab info from REST API
-
-        if keyword!="":
-            url = "http://smartsign.imtc.gatech.edu/videos?keywords=" + keyword
+        if keyword == "":
+            return ""
+        url = "http://smartsign.imtc.gatech.edu/videos?keywords=" + keyword
+        try:
             response = urllib2.urlopen(url)
-            #convert JSON to Python object
-            info = json.load(response)
-            #pull ids from converted JSON
-            ids = []
-            
-            for item in info:
-                rank = 999
-                keywords = item["keywords"]
-                for keyword in keywords:
-                    if keyword.find("{"):
-                        int(keyword.strip("{}"))
-                        rank = keyword
-                ids.append(item["id"],rank)
-            #use ids to build a list of embedded players
-            ids = sorted(ids,key=lambda id: id[1])
-            players = "<h1>"
-            for i in ids:
-                players+=("<iframe width="+"640"+" height="+"360"+"align:right src=http://www.youtube.com/embed/"+str(i)+"?rel=0> </iframe>")
-                #players.append('https://www.youtube.com/watch?v='+i)
-            print(keyword)
-            players+="<h1"
-            f=open(tempfile.gettempdir()+"/temp.html","w")
+        except:
+            print("unable to connect to url: "+url)
+            return ""
+        #convert JSON to Python object
+        info = json.load(response)
+        #pull ids from converted JSON
+        ids = []
+        for item in info:
+            keywords = item["keywords"]
+            #default rank for unranked videos
+            rank = 999
+            for word in keywords:
+                if word.find("{") != -1:
+                    rank = int(word.strip("{}"))
+            ids.append((item["id"],rank))
+        #use ids to build a list of embedded players
+        players = "<h1>"
+        #sort using rank
+        ids = sorted(ids,key=lambda id: id[1])
+        for i in ids:
+            players+='<iframe width="640" height="360" align:right src="http://www.youtube.com/embed/' + i[0] + '?rel=0"> </iframe>'
+        print("keyword is: "+keyword)
+        print(len(ids))
+        players += "</h1>"
+        if len(ids)>0:
+            f = open(tempfile.gettempdir()+"/temp.html","w")
             f.write(players)
-            webbrowser.open_new_tab(tempfile.gettempdir()+"/temp.html")
-        return keyword
+            temp = f.name
+            f.close()
+            webbrowser.open(temp,2,True)
+            return keyword
+        else:
+            return ""
 
