@@ -14,10 +14,9 @@ if False:
     get_icons = get_resources = None
 
 # The class that all interface action plugins must inherit from
-from calibre.gui2.actions import InterfaceAction
 from calibre_plugins.interface_demo.main import DemoDialog
 
-class InterfacePlugin(InterfaceAction):
+class ViewerPlugin():
 
     name = 'Sign Dict Plugin'
 
@@ -28,25 +27,33 @@ class InterfacePlugin(InterfaceAction):
     action_spec = ('Sign Dict Plugin', None,
             'Run the Interface Plugin Demo', 'Ctrl+Shift+F1')
 
-    def genesis(self):
-        # This method is called once per plugin, do initial setup here
+    # def genesis(self):
+    #     # This method is called once per plugin, do initial setup here
 
-        # Set the icon for this interface action
-        # The get_icons function is a builtin function defined for all your
-        # plugin code. It loads icons from the plugin zip file. It returns
-        # QIcon objects, if you want the actual data, use the analogous
-        # get_resources builtin function.
-        #
-        # Note that if you are loading more than one icon, for performance, you
-        # should pass a list of names to get_icons. In this case, get_icons
-        # will return a dictionary mapping names to QIcons. Names that
-        # are not found in the zip file will result in null QIcons.
+    #     # Set the icon for this interface action
+    #     # The get_icons function is a builtin function defined for all your
+    #     # plugin code. It loads icons from the plugin zip file. It returns
+    #     # QIcon objects, if you want the actual data, use the analogous
+    #     # get_resources builtin function.
+    #     #
+    #     # Note that if you are loading more than one icon, for performance, you
+    #     # should pass a list of names to get_icons. In this case, get_icons
+    #     # will return a dictionary mapping names to QIcons. Names that
+    #     # are not found in the zip file will result in null QIcons.
+    #     icon = get_icons('images/icon.png')
+
+    #     # The qaction is automatically created from the action_spec defined
+    #     # above
+    #     self.qaction.setIcon(icon)
+    #     self.qaction.triggered.connect(self.show_dialog)
+
+    def customize_ui(ui):
         icon = get_icons('images/icon.png')
 
         # The qaction is automatically created from the action_spec defined
         # above
         self.qaction.setIcon(icon)
-        self.qaction.triggered.connect(self.show_dialog)
+        ui.tool_bar.addAction(self.action)
 
     def show_dialog(self):
         # The base plugin object defined in __init__.py
